@@ -38,68 +38,54 @@ function writeUserData(trainName,destination,firstTrain,frequency){
     })
 }
 
-
-
-
-
 //3. Read from database and Display
-
-
+function test() {
+    $("#values").empty() //question
 database.on("child_added",function(snapshot){
 
 
-   console.log(snapshot.val().trainName);
-   console.log(snapshot.val().destination);
-   console.log(snapshot.val().firstTrain);
-   console.log(snapshot.val().frequency);
+var currentTime = moment(moment(),'dd:hh:mm:ss a') // question
+var firstTrain  = moment(snapshot.val().firstTrain,'dd:hh:mm:ss a')
+
+// if (currentTime < firstTrain){
+//     firstTrain = moment().add(1,'day');
+// }
+
+var frequency = snapshot.val().frequency;
+var totalMinutes = currentTime.diff(firstTrain,"minutes")
+
+console.log("firstTrain :" + moment(firstTrain).format('hh:mm a'))
+console.log("totalminutes :" + totalMinutes)
+var mod = (totalMinutes % frequency)
+if (mod < 0){
+    mod = mod * (-1)
+}
+console.log("mod : " + mod)
+var addMinutes = frequency - mod
+console.log("addMinutes : " + addMinutes)
+var nextTrain = moment().add(addMinutes,'minutes').format('hh:mm a');
+console.log(nextTrain)
 
    $("#values").append(("<tr> " +
    " <td> " + snapshot.val().trainName +" </td> "+
    " <td> " + snapshot.val().destination +" </td> "+
-   " <td> " + snapshot.val().frequency +" </td> "+
-   " <td> " + "NAN" +" </td> "+
-   " <td> " + "NAN" + "</td> "));
-
-
+   " <td> " + frequency +" </td> "+
+   " <td> " + nextTrain +" </td> "+
+   " <td> " + addMinutes + "</td> "));
 
 })
+}
 
 
-
-
-
-
-
-
-
-//4. Function to calcuate Next Arrival & Minutes away
-
-
-// next arrival 
-
-
-
-
-///
-
-function checkTime(i) {
-    if (i < 10) {
-      i = "0" + i;
-    }
-    return i;
-  }
   
   function startTime() {
-    var today = new Date();
-    var h = today.getHours();
-    var m = today.getMinutes();
-    var s = today.getSeconds();
-    // add a zero in front of numbers<10
-    m = checkTime(m);
-    s = checkTime(s);
-    document.getElementById('time').innerHTML = h + ":" + m + ":" + s;
+    var today = new moment().format('h:mm:ss a')
+   // document.getElementById('time').innerHTML = h + ":" + m + ":" + s;
+    $("#time").text('Current Time : ' + today)
     t = setTimeout(function() {
       startTime()
-    }, 500);
+      test()
+    }, 1000);
   }
   startTime();
+  test()
